@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Мои ссылки{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Мои ссылки</h1>
+  <p class="subtitle">Мини-LINKTREE для личного использования</p>
+
+  <div class="links">
+    {% for link in links %}
+      <a class="link-btn" href="{{ link['url'] }}" target="_blank" rel="noopener noreferrer">
+        <span>{{ link['title'] }}</span>
+        {% if link['description'] %}<small>{{ link['description'] }}</small>{% endif %}
+      </a>
+    {% else %}
+      <p>Пока нет ссылок. Зайдите в админку и добавьте первую.</p>
+    {% endfor %}
+  </div>
+
+  <a class="admin-link" href="{{ url_for('admin_login') }}">Админка</a>
+</section>
+{% endblock %}
