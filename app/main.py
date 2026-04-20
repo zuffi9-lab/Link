@@ -1,12 +1,16 @@
 import os
 import sqlite3
 from functools import wraps
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from werkzeug.security import check_password_hash
 
 DB_PATH = os.environ.get("DB_PATH", "/data/links.db")
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "change_me")
+ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH", "")
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-secret")
+PROFILE_TITLE = os.environ.get("PROFILE_TITLE", "Мои ссылки")
+PROFILE_SUBTITLE = os.environ.get("PROFILE_SUBTITLE", "Мини-LINKTREE для личного использования")
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = SECRET_KEY
@@ -46,13 +50,29 @@ def login_required(view_func):
     return wrapped
 
 
+def verify_admin_password(password: str) -> bool:
+    if ADMIN_PASSWORD_HASH:
+        return check_password_hash(ADMIN_PASSWORD_HASH, password)
+    return password == ADMIN_PASSWORD
+
+
 @app.route("/")
 def public_profile():
     with get_db() as conn:
         links = conn.execute(
             "SELECT * FROM links WHERE is_active=1 ORDER BY sort_order ASC, id DESC"
         ).fetchall()
-    return render_template("public.html", links=links)
+    return render_template(
+        "public.html",
+        links=links,
+        profile_title=PROFILE_TITLE,
+        profile_subtitle=PROFILE_SUBTITLE,
+    )
+
+
+@app.get("/health")
+def healthcheck():
+    return jsonify({"status": "ok"}), 200
 
 
 @app.route("/admin/login", methods=["GET", "POST"])
@@ -60,7 +80,7 @@ def admin_login():
     if request.method == "POST":
         username = request.form.get("username", "")
         password = request.form.get("password", "")
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+        if username == ADMIN_USERNAME and verify_admin_password(password):
             session["is_admin"] = True
             return redirect(url_for("admin_dashboard"))
         flash("Неверный логин или пароль", "error")
@@ -102,6 +122,29 @@ def add_link():
         conn.commit()
 
     flash("Ссылка добавлена", "success")
+    return redirect(url_for("admin_dashboard"))
+
+
+@app.route("/admin/links/<int:link_id>/update", methods=["POST"])
+@login_required
+def update_link(link_id: int):
+    title = request.form.get("title", "").strip()
+    url = request.form.get("url", "").strip()
+    description = request.form.get("description", "").strip()
+    sort_order = int(request.form.get("sort_order", 0) or 0)
+
+    if not title or not url:
+        flash("Поля title и url обязательны", "error")
+        return redirect(url_for("admin_dashboard"))
+
+    with get_db() as conn:
+        conn.execute(
+            "UPDATE links SET title = ?, url = ?, description = ?, sort_order = ? WHERE id = ?",
+            (title, url, description, sort_order, link_id),
+        )
+        conn.commit()
+
+    flash("Ссылка обновлена", "success")
     return redirect(url_for("admin_dashboard"))
 
 

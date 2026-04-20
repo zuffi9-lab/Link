@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
-{% block title %}Мои ссылки{% endblock %}
+{% block title %}{{ profile_title }}{% endblock %}
 {% block content %}
 <section class="card">
-  <h1>Мои ссылки</h1>
-  <p class="subtitle">Мини-LINKTREE для личного использования</p>
+  <h1>{{ profile_title }}</h1>
+  <p class="subtitle">{{ profile_subtitle }}</p>
 
   <div class="links">
     {% for link in links %}

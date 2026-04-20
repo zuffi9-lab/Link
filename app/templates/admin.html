@@ -30,16 +30,23 @@
   <h2>Список ссылок</h2>
   <table>
     <thead>
-      <tr><th>ID</th><th>Название</th><th>URL</th><th>Активна</th><th>Действия</th></tr>
+      <tr><th>ID</th><th>Название</th><th>URL</th><th>Описание</th><th>Порядок</th><th>Активна</th><th>Действия</th></tr>
     </thead>
     <tbody>
       {% for link in links %}
       <tr>
         <td>{{ link['id'] }}</td>
-        <td>{{ link['title'] }}</td>
-        <td><a href="{{ link['url'] }}" target="_blank">{{ link['url'] }}</a></td>
+        <td>
+          <form class="inline-edit" method="post" action="{{ url_for('update_link', link_id=link['id']) }}">
+            <input type="text" name="title" value="{{ link['title'] }}" required />
+        </td>
+        <td><input type="url" name="url" value="{{ link['url'] }}" required /></td>
+        <td><input type="text" name="description" value="{{ link['description'] or '' }}" /></td>
+        <td><input type="number" name="sort_order" value="{{ link['sort_order'] }}" /></td>
         <td>{{ 'Да' if link['is_active'] else 'Нет' }}</td>
         <td>
+            <button type="submit">Сохранить</button>
+          </form>
           <form style="display:inline" method="post" action="{{ url_for('toggle_link', link_id=link['id']) }}">
             <button type="submit">Переключить</button>
           </form>
