@@ -1,0 +1,15 @@
+services:
+  my-links:
+    container_name: my-links
+    build: .
+    image: my-links:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=SUPER_STRONG_PASSWORD
+      - SECRET_KEY=CHANGE_ME_TO_LONG_RANDOM_STRING
+      - DB_PATH=/data/links.db
+    volumes:
+      - /mnt/tank/apps/my-links:/data
+    restart: unless-stopped
