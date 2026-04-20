@@ -1,0 +1,17 @@
+services:
+  my-links:
+    container_name: my-links
+    image: ghcr.io/your-account/my-links:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=CHANGE_ME
+      - ADMIN_PASSWORD_HASH=
+      - SECRET_KEY=CHANGE_ME_TO_LONG_RANDOM_STRING
+      - PROFILE_TITLE=Мои ссылки
+      - PROFILE_SUBTITLE=Куда меня найти
+      - DB_PATH=/data/links.db
+    volumes:
+      - /mnt/tank/apps/my-links:/data
+    restart: unless-stopped
