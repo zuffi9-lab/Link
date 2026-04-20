@@ -4,7 +4,7 @@ from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from werkzeug.security import check_password_hash
 
-DB_PATH = os.environ.get("DB_PATH", "/data/links.db")
+DB_PATH = os.environ.get("DB_PATH", "./data/links.db")
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "admin")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "change_me")
 ADMIN_PASSWORD_HASH = os.environ.get("ADMIN_PASSWORD_HASH", "")
@@ -23,7 +23,10 @@ def get_db():
 
 
 def init_db():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    db_dir = os.path.dirname(DB_PATH)
+    if db_dir:
+        os.makedirs(db_dir, exist_ok=True)
+
     with get_db() as conn:
         conn.execute(
             """

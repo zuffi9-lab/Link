@@ -45,7 +45,7 @@ docker run --rm -p 8080:8080 \
 - `ADMIN_PASSWORD` — пароль админа (базовый вариант).
 - `ADMIN_PASSWORD_HASH` — хэш пароля (приоритетнее, безопаснее).
 - `SECRET_KEY` — секрет Flask-сессии (обязательно случайная строка).
-- `DB_PATH` — путь к sqlite БД (по умолчанию `/data/links.db`).
+- `DB_PATH` — путь к sqlite БД (по умолчанию `./data/links.db`, в контейнере лучше `/data/links.db`).
 - `PROFILE_TITLE` — заголовок публичной страницы.
 - `PROFILE_SUBTITLE` — подзаголовок публичной страницы.
 
